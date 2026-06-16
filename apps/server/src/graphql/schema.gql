@@ -1,0 +1,372 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type User {
+  _id: ID!
+  email: String!
+  userName: String!
+  role: String!
+  googleId: String
+  password: String
+  avatar: String
+  hashedRefreshToken: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type AuthPayload {
+  userId: String!
+  role: String!
+  accessToken: String!
+  userName: String!
+  avatar: String
+  refreshToken: String!
+}
+
+type Lecture {
+  _id: ID!
+  title: String!
+  videoUrl: String!
+  duration: String!
+  freePreview: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Section {
+  _id: ID!
+  title: String!
+  order: Int!
+  lectures: [Lecture]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CourseEntity {
+  _id: ID!
+  title: String!
+  description: String!
+  price: Float!
+  objectives: String!
+  instructor: User!
+  students: [User]
+  categories: String!
+  level: String!
+  primaryLanguage: String!
+  welcomeMessage: String
+  lectures: [Lecture]
+  sections: [Section]
+  image: String
+  isPublished: Boolean!
+  studentCount: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Enrollment {
+  _id: ID!
+  user: User!
+  course: CourseEntity!
+  paymentMethod: String!
+  paymentId: String!
+  amount: Float!
+  status: String!
+  enrolledAt: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type IsEnrolledResponse {
+  enrolled: Boolean!
+}
+
+type CourseProgress {
+  _id: ID!
+  user: User!
+  course: CourseEntity!
+  lecture: Lecture!
+  viewed: Boolean!
+  viewedDate: DateTime
+  completed: Boolean!
+  completedDate: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CompletionStats {
+  percentage: Int!
+}
+
+type CourseStatusResponse {
+  courseId: String!
+  status: String!
+  percentage: Int!
+  viewedCount: Int!
+  completedCount: Int!
+  totalLectures: Int!
+}
+
+type Cart {
+  _id: ID!
+  user: User!
+  items: [CourseEntity!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Order {
+  _id: ID!
+  user: User!
+  courses: [CourseEntity!]!
+  paymentMethod: String!
+  paymentId: String!
+  totalAmount: Float!
+  status: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Favorite {
+  _id: ID!
+  user: User!
+  course: CourseEntity!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Query {
+  """Get all users"""
+  users: [User!]!
+
+  """Get user by ID"""
+  user(id: ID!): User!
+
+  """Get user by email"""
+  userByEmail(email: String!): User!
+
+  """Get all courses"""
+  courses(queryReq: QueryArgs): [CourseEntity!]!
+
+  """Get course by ID"""
+  course(id: ID!): CourseEntity!
+
+  """Get courses by instructor ID from context"""
+  coursesByInstructor: [CourseEntity!]!
+  lectures: [Lecture!]!
+  lecture(id: String!): Lecture!
+
+  """Get courses the current user is enrolled in"""
+  myEnrollments: [Enrollment!]!
+
+  """Get students enrolled in a specific course"""
+  courseEnrollments(courseId: ID!): [Enrollment!]!
+
+  """Check if current user is enrolled in a course"""
+  isEnrolled(courseId: ID!): IsEnrolledResponse!
+
+  """Get progress for a specific course"""
+  myCourseProgress(courseId: ID!): [CourseProgress!]!
+
+  """Get completion percentage for a course"""
+  courseCompletionStats(courseId: ID!, totalLectures: Int!): CompletionStats!
+
+  """Get overall course status (not_started, in_progress, completed)"""
+  courseStatus(courseId: ID!): CourseStatusResponse!
+
+  """Get status for all enrolled courses"""
+  allMyCoursesStatus: [CourseStatusResponse!]!
+
+  """Get the current user cart"""
+  myCart: Cart!
+
+  """Get all orders for the current user"""
+  myOrders: [Order!]!
+
+  """Get orders visible to admins or the current instructor"""
+  dashboardOrders: [Order!]!
+
+  """Get a specific order by ID"""
+  order(id: ID!): Order!
+  myFavorites: [Favorite!]!
+  isFavorite(courseId: ID!): Boolean!
+
+  """Get all sections for a course"""
+  sectionsByCourse(courseId: ID!): [Section!]!
+}
+
+input QueryArgs {
+  page: String
+  limit: String
+  fields: String
+  keyword: String
+  categories: String
+  level: String
+  price: NumberComparisonInput
+  isPublished: Boolean
+  sort: String
+}
+
+input NumberComparisonInput {
+  gt: Float
+  gte: Float
+  lt: Float
+  lte: Float
+  eq: Float
+  ne: Float
+}
+
+type Mutation {
+  """Create a new user"""
+  Signup(createUserInput: CreateUserInput!): User!
+
+  """Login a user"""
+  signIn(input: SignInValid!): AuthPayload!
+
+  """Refresh access token"""
+  refreshToken: AuthPayload!
+
+  """Logout a user"""
+  logout: Boolean!
+
+  """Update user"""
+  updateUser(updateUserInput: UpdateUserInput!): User!
+
+  """Delete user"""
+  removeUser(id: ID!): User!
+
+  """Create a new course"""
+  createCourse(createCourseInput: CreateCourseInput!): CourseEntity!
+
+  """Update course"""
+  updateCourse(updateCourseInput: UpdateCourseInput!): CourseEntity!
+
+  """Delete course"""
+  removeCourse(id: ID!): CourseEntity!
+  createLecture(createLectureInput: CreateLectureInput!): Lecture!
+  updateLecture(updateLectureInput: UpdateLectureInput!): Lecture!
+  removeLecture(id: String!): Lecture!
+
+  """Enroll in a course after payment"""
+  enrollInCourse(courseId: ID!, paymentMethod: String!, paymentId: String!, amount: Float!): Enrollment!
+
+  """Mark a lecture as viewed"""
+  markLectureViewed(courseId: ID!, lectureId: ID!): CourseProgress!
+
+  """Mark a lecture as completed"""
+  markLectureCompleted(courseId: ID!, lectureId: ID!): CourseProgress!
+  addToCart(courseId: ID!): Cart!
+  removeFromCart(courseId: ID!): Cart!
+  clearCart: Boolean!
+  toggleFavorite(courseId: ID!): Boolean!
+
+  """Create a new section in a course"""
+  createSection(courseId: ID!, input: CreateSectionInput!): Section!
+
+  """Update a section"""
+  updateSection(input: UpdateSectionInput!): Section!
+
+  """Remove a section from a course"""
+  removeSection(id: ID!, courseId: ID!): Section!
+
+  """Add a lecture to a section"""
+  addLectureToSection(sectionId: ID!, lectureId: ID!): Section!
+
+  """Remove a lecture from a section"""
+  removeLectureFromSection(sectionId: ID!, lectureId: ID!): Section!
+
+  """Reorder sections in a course"""
+  reorderSections(courseId: ID!, sectionIds: [ID!]!): [Section!]!
+
+  """Reorder lectures within a section"""
+  reorderLectures(sectionId: ID!, lectureIds: [ID!]!): Section!
+}
+
+input CreateUserInput {
+  email: String!
+  userName: String!
+  password: String!
+  avatar: String
+}
+
+input SignInValid {
+  email: String!
+  password: String!
+}
+
+input UpdateUserInput {
+  email: String
+  userName: String
+  password: String
+  avatar: String
+  _id: ID!
+  role: UserRole
+}
+
+enum UserRole {
+  Admin
+  Instructor
+  Student
+}
+
+input CreateCourseInput {
+  title: String!
+  description: String!
+  price: Float!
+  categories: String!
+  level: String!
+  primaryLanguage: String!
+  isPublished: Boolean!
+  welcomeMessage: String!
+  lectures: [String!]!
+  image: String
+  objectives: String!
+}
+
+input UpdateCourseInput {
+  title: String
+  description: String
+  price: Float
+  categories: String
+  level: String
+  primaryLanguage: String
+  isPublished: Boolean
+  welcomeMessage: String
+  lectures: [String!]
+  image: String
+  objectives: String
+  _id: ID!
+}
+
+input CreateLectureInput {
+  title: String!
+  description: String!
+  videoUrl: String!
+  duration: String!
+  freePreview: Boolean = false
+}
+
+input UpdateLectureInput {
+  title: String
+  description: String
+  videoUrl: String
+  duration: String
+  freePreview: Boolean = false
+  id: String!
+}
+
+input CreateSectionInput {
+  title: String!
+  order: Int = 0
+}
+
+input UpdateSectionInput {
+  id: ID!
+  title: String
+  order: Int
+}
